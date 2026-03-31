@@ -10,7 +10,7 @@ import lejos.robotics.SampleProvider;   // allows the sensor to return the sampl
                                         // e.g., for getting distance data from sonic sensor etc
                                         import lejos.utility.Delay;
 
-public class UltrasonicSensor {
+public class u {
 
     public static void main(String[] args) {
         // Creating an instance of US sensor at port 2
@@ -23,8 +23,6 @@ public class UltrasonicSensor {
         leftMotor.forward();
         rightMotor.forward();
         Delay.msDelay(3000); 
-
-        
 
         EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(SensorPort.S1);
         
@@ -46,24 +44,35 @@ public class UltrasonicSensor {
             LCD.clear();
             LCD.drawString("Dist: " + sample[0] + " meters", 0, 0);
 
-            
+           //Refresh display every 100 ms
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-            
-
-            // Refresh display every 100 ms
-            // try {
-            //     Thread.sleep(100);
-            // } catch (InterruptedException e) {
-            //     e.printStackTrace();
-            // }
+            if (sample[0] == 0.10){
+               leftMotor.setSpeed(0);
+                rightMotor.setSpeed(0);
+                Delay.msDelay(3000);  
+            }
 
         }
+
         leftMotor.setSpeed(100);   
         rightMotor.setSpeed(100);
         Delay.msDelay(3000); 
+
+        leftMotor.setSpeed(100);
+        rightMotor.setSpeed(100);        
+        leftMotor.rotateTo(360, true);
+        leftMotor.rotateTo(360,true);
+        leftMotor.setSpeed(360);   
+        rightMotor.setSpeed(360);
         // Close US sensor
         ultrasonicSensor.close();
         leftMotor.close();
         rightMotor.close();
+
     }
 }
