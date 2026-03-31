@@ -1,1 +1,1 @@
-"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe ussensor.jar ultrasonic.UltrasonicSensor -C . ultrasonic
+"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe ultrasonic.jar ultrasonic.UltrasonicSensor -C . ultrasonic
