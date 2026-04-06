@@ -1,6 +1,7 @@
 package ultrasonic;
 
 import lejos.hardware.sensor.EV3UltrasonicSensor;
+import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.port.MotorPort;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.lcd.LCD;
@@ -13,6 +14,11 @@ import lejos.robotics.SampleProvider;   // allows the sensor to return the sampl
 public class u {
 
     public static void main(String[] args) {
+
+        EV3ColorSensor lightSensor = new EV3ColorSensor(SensorPort.S2);
+        SampleProvider colorSample = lightSensor.getColorIDMode();
+        float[] colorSampleArray = new float[colorSample.sampleSize()];
+
         // Creating an instance of US sensor at port 2
 
         EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(MotorPort.B);
@@ -20,9 +26,6 @@ public class u {
 
         leftMotor.setSpeed(360);   
         rightMotor.setSpeed(360);
-        leftMotor.forward();
-        rightMotor.forward();
-        Delay.msDelay(3000); 
 
         EV3UltrasonicSensor ultrasonicSensor = new EV3UltrasonicSensor(SensorPort.S1);
         
@@ -37,12 +40,19 @@ public class u {
         // Keep displaying the distance, until user presses a button
         while (!Button.ESCAPE.isDown())
         {
-            // Get the curRent distnce reading from the US sensor
+            // read sensors
             distance.fetchSample(sample, 0);
+            float distanceInMeters = sample[0];
+
+            lightSensor.fetchSample(colorSampleArray, 0);
+            float colorID = colorSampleArray[0];
+
+            
             
             // Display the distance on the LCD screen
             LCD.clear();
-            LCD.drawString("Dist: " + sample[0] + " meters", 0, 0);
+            LCD.drawString("Dist: " + distanceInMeters + " meters", 0, 0);
+            LCD.drawString("Color: " + colorID, 0, 1);
 
            //Refresh display every 100 ms
             try {
@@ -51,12 +61,37 @@ public class u {
                 e.printStackTrace();
             }
 
-            if (sample[0] == 0.10){
-               leftMotor.setSpeed(0);
-                rightMotor.setSpeed(0);
-                Delay.msDelay(3000);  
-            }
+            if (distanceInMeters < 0.15){
+                // Stop the motors if an obstacle is closer than 15 cm
+               leftMotor.stop(true);   // true = immediate return
+                rightMotor.stop(); 
 
+                // Move backward for a short duration
+                leftMotor.setSpeed(200);
+                rightMotor.setSpeed(200);
+                leftMotor.backward();
+                rightMotor.backward();
+                Delay.msDelay(500); // Move backward for 500 ms
+
+                // Turn right for a short duration
+                leftMotor.setSpeed(200);
+                rightMotor.setSpeed(200);
+                leftMotor.forward();
+                rightMotor.backward();
+                Delay.msDelay(500); // Turn for 500 ms
+            }
+            else {
+                if (colorID < 0.3) { // If the color detected is black (you may need to adjust this threshold based on your sensor readings)
+                    leftMotor.setSpeed(200);
+                    rightMotor.setSpeed(200);
+                } else {
+                    leftMotor.setSpeed(100);
+                    rightMotor.setSpeed(100);
+                }
+                leftMotor.forward();
+                rightMotor.forward();
+            }
+            Delay.msDelay(50);
         }
 
         leftMotor.setSpeed(100);   
