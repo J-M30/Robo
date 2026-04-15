@@ -22,7 +22,8 @@ public class ThreadedRobot {
         EV3ColorSensor lightSensor =
                 new EV3ColorSensor(SensorPort.S2);
 
-        SampleProvider lightMode = lightSensor.getColorIDMode();
+        // use RedMode (not ColorID)
+        SampleProvider lightMode = lightSensor.getRedMode();
         float[] lightSample = new float[lightMode.sampleSize()];
 
         LightData lightData = new LightData();
@@ -54,18 +55,16 @@ public class ThreadedRobot {
         EV3LargeRegulatedMotor rightMotor =
                 new EV3LargeRegulatedMotor(MotorPort.A);
 
-        leftMotor.setSpeed(200);
-        rightMotor.setSpeed(200);
+        leftMotor.setSpeed(150);
+        rightMotor.setSpeed(150);
 
 
         // ---------- MAIN LOOP ----------
         while (!Button.ESCAPE.isDown()) {
 
-            // --- Light data (from thread) ---
             float light = lightData.filtered;
             boolean isBlack = lightData.isBlack;
 
-            // --- Ultrasonic data (from thread) ---
             float distance = ultraRunnable.getDistance();
 
             // --- Display ---
@@ -76,15 +75,17 @@ public class ThreadedRobot {
             if (distance < 0.15f) {
                 avoidObstacle(leftMotor, rightMotor);
             }
-            else if (isBlack) {
-                setSpeed(leftMotor, rightMotor, 200);
-                leftMotor.forward();
-                rightMotor.forward();
-            }
             else {
-                // correction turn
-                leftMotor.setSpeed(100);
-                rightMotor.setSpeed(200);
+                if (isBlack) {
+                    // on line → go straight
+                    leftMotor.setSpeed(150);
+                    rightMotor.setSpeed(150);
+                } else {
+                    // off line → turn LEFT to find it
+                    leftMotor.setSpeed(200);
+                    rightMotor.setSpeed(80);
+                }
+
                 leftMotor.forward();
                 rightMotor.forward();
             }
@@ -127,12 +128,5 @@ public class ThreadedRobot {
         left.forward();
         right.backward();
         Delay.msDelay(450);
-    }
-
-    static void setSpeed(EV3LargeRegulatedMotor left,
-                         EV3LargeRegulatedMotor right,
-                         int speed) {
-        left.setSpeed(speed);
-        right.setSpeed(speed);
     }
 }

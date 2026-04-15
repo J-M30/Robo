@@ -45,7 +45,8 @@ public class LightSensorThread extends Thread {
 
             // 3. Store processed values (ONLY here)
             data.filtered = avg;
-            data.isBlack = avg < 0.3f;
+            data.isBlack = avg < 0.1f;
+
 
             Delay.msDelay(10);
         }

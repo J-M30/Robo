@@ -29,10 +29,10 @@ public void run() {
             if (objDetected) {
                 Thread.sleep(100);
             } else {
-                Thread.sleep(500);
+                Thread.sleep(200);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            break; // Exit loop if interrupted
         }
     }
 }
