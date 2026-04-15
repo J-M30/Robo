@@ -3,7 +3,7 @@ package threads;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-class LightSensorThread extends Thread {
+public class LightSensorThread extends Thread {
 
     private SampleProvider lightMode;
     private float[] sample;
@@ -25,10 +25,9 @@ class LightSensorThread extends Thread {
 
         while (running) {
 
-            // 1. Read sensor (fast, no allocations)
+            // 1. Read sensor
             lightMode.fetchSample(sample, 0);
             float value = sample[0];
-
             data.raw = value;
 
             // 2. Moving average filter
@@ -43,16 +42,15 @@ class LightSensorThread extends Thread {
             }
 
             float avg = sum / count;
-            data.filtered = avg;
 
-            // 3. Classification (clean interface for teammates)
-            data.isBlack = (avg < 0.3f);
+            // 3. Store processed values (ONLY here)
+            data.filtered = avg;
+            data.isBlack = avg < 0.3f;
 
             Delay.msDelay(10);
         }
     }
 
-    // clean shutdown method (VERY important for grading)
     public void stopThread() {
         running = false;
     }
