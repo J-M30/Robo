@@ -1,4 +1,4 @@
-package ultrasonic;
+package paakansio;
 
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -9,9 +9,9 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.Button;
 import lejos.robotics.SampleProvider;   // allows the sensor to return the samples or data
                                         // e.g., for getting distance data from sonic sensor etc
-                                        import lejos.utility.Delay;
+import lejos.utility.Delay;
 
-public class light {
+public class paa {
 
     public static void main(String[] args) {
 
@@ -37,12 +37,14 @@ public class light {
         // can provide multiple values, therefore to keep consistency, I'm using sampleprovider
         float[] sample = new float[distance.sampleSize()];
     
+        UST usThread = new UST(distance, sample); // Us trhead start
+        Thread t = new Thread(usThread);
+        t.start();
         // Keep displaying the distance, until user presses a button
         while (!Button.ESCAPE.isDown())
         {
             // read sensors
-            distance.fetchSample(sample, 0);
-            float distanceInMeters = sample[0];
+            float distanceInMeters = usThread.getDistance(); //Get distrance from thread
 
             lightSensor.fetchSample(colorSampleArray, 0);
             float colorID = colorSampleArray[0];
@@ -81,20 +83,35 @@ public class light {
                 Delay.msDelay(500); // Turn for 500 ms
             }
             else {
-                if (colorID < 0.3) { // If the color detected is black (you may need to adjust this threshold based on your sensor readings)
+                if (colorID < 0.3f) { // If the color detected is black (you may need to adjust this threshold based on your sensor readings)
                     leftMotor.setSpeed(200);
                     rightMotor.setSpeed(200);
+                    leftMotor.forward();
+                    rightMotor.forward();
                 } else {
                     leftMotor.setSpeed(100);
                     rightMotor.setSpeed(100);
+                    leftMotor.forward();
+                    rightMotor.backward();
+                    Delay.msDelay(500);
+                    if (colorID <0.3){
+                        leftMotor.setSpeed(200);
+                        rightMotor.setSpeed(200);
+                        leftMotor.forward();
+                        rightMotor.forward();
+                    } else{
+                        leftMotor.setSpeed(100);
+                        rightMotor.setSpeed(100);
+                        leftMotor.backward();
+                        rightMotor.forward();
+                        Delay.msDelay(1000);
                 }
-                leftMotor.forward();
-                rightMotor.forward();
+                
             }
             Delay.msDelay(50);
         }
 
-        leftMotor.setSpeed(100);
+        leftMotor.setSpeed(100);   
         rightMotor.setSpeed(100);
         Delay.msDelay(3000); 
 
@@ -111,4 +128,5 @@ public class light {
         lightSensor.close();
 
     }
+}
 }

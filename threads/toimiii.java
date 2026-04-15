@@ -1,4 +1,4 @@
-package ultrasonic;
+package threads;
 
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -11,7 +11,7 @@ import lejos.robotics.SampleProvider;   // allows the sensor to return the sampl
                                         // e.g., for getting distance data from sonic sensor etc
                                         import lejos.utility.Delay;
 
-public class light {
+public class toimiii {
 
     public static void main(String[] args) {
 
@@ -37,12 +37,14 @@ public class light {
         // can provide multiple values, therefore to keep consistency, I'm using sampleprovider
         float[] sample = new float[distance.sampleSize()];
     
+        USThread usThread = new USThread(distance, sample); // Us trhead start
+        Thread t = new Thread(usThread);
+        t.start();
         // Keep displaying the distance, until user presses a button
         while (!Button.ESCAPE.isDown())
         {
             // read sensors
-            distance.fetchSample(sample, 0);
-            float distanceInMeters = sample[0];
+            float distanceInMeters = usThread.getDistance(); //Get distrance from thread
 
             lightSensor.fetchSample(colorSampleArray, 0);
             float colorID = colorSampleArray[0];
@@ -81,29 +83,18 @@ public class light {
                 Delay.msDelay(500); // Turn for 500 ms
             }
             else {
-                if (colorID < 0.3) { // If the color detected is black (you may need to adjust this threshold based on your sensor readings)
-                    leftMotor.setSpeed(200);
-                    rightMotor.setSpeed(200);
-                } else {
-                    leftMotor.setSpeed(100);
-                    rightMotor.setSpeed(100);
-                }
+                leftMotor.setSpeed(200);
+                rightMotor.setSpeed(200);
                 leftMotor.forward();
                 rightMotor.forward();
             }
             Delay.msDelay(50);
         }
 
-        leftMotor.setSpeed(100);
+        leftMotor.setSpeed(100);   
         rightMotor.setSpeed(100);
         Delay.msDelay(3000); 
 
-        leftMotor.setSpeed(100);
-        rightMotor.setSpeed(100);        
-        leftMotor.rotateTo(360, true);
-        leftMotor.rotateTo(360,true);
-        leftMotor.setSpeed(360);   
-        rightMotor.setSpeed(360);
         // Close US sensor
         ultrasonicSensor.close();
         leftMotor.close();

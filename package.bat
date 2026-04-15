@@ -1,1 +1,1 @@
-"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe light.jar ultrasonic.light -C . ultrasonic
+"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe toimiiko.jar paakansio.paa -C . paakansio
