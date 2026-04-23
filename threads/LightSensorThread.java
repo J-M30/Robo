@@ -1,11 +1,12 @@
 package threads;
 
+import data.LightData;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
 public class LightSensorThread extends Thread {
 
-    private SampleProvider lightMode;
+    private SampleProvider mode;
     private float[] sample;
     private LightData data;
 
@@ -15,22 +16,18 @@ public class LightSensorThread extends Thread {
 
     private volatile boolean running = true;
 
-    public LightSensorThread(SampleProvider lightMode, float[] sample, LightData data) {
-        this.lightMode = lightMode;
+    public LightSensorThread(SampleProvider mode, float[] sample, LightData data) {
+        this.mode = mode;
         this.sample = sample;
         this.data = data;
     }
 
     public void run() {
-
         while (running) {
-
-            // 1. Read sensor
-            lightMode.fetchSample(sample, 0);
+            mode.fetchSample(sample, 0);
             float value = sample[0];
             data.raw = value;
 
-            // 2. Moving average filter
             buffer[index] = value;
             index = (index + 1) % buffer.length;
 
@@ -41,12 +38,7 @@ public class LightSensorThread extends Thread {
                 sum += buffer[i];
             }
 
-            float avg = sum / count;
-
-            // 3. Store processed values (ONLY here)
-            data.filtered = avg;
-            data.isBlack = avg < 0.1f;
-
+            data.filtered = sum / count;
 
             Delay.msDelay(10);
         }

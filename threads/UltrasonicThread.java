@@ -1,46 +1,64 @@
 package threads;
 
 import lejos.robotics.SampleProvider;
+import lejos.utility.Delay;
+
 
 public class UltrasonicThread implements Runnable {
 
-    private SampleProvider ultrasonicSensor;
-    private float[] sample; //store data
+    private SampleProvider mode;
+    private float[] sample;
 
     private volatile boolean running = true;
+    private volatile float distance = 1.0f;
 
-public UltrasonicThread(SampleProvider sensor, float[] sample) {//Constructor
-        this.ultrasonicSensor = sensor;
+    // filtering buffer (same design as LightSensorThread)
+    private float[] buffer = new float[5];
+    private int index = 0;
+    private int count = 0;
+
+    public UltrasonicThread(SampleProvider mode, float[] sample) {
+        this.mode = mode;
         this.sample = sample;
     }
-    private volatile float distance;//latest distance measured
-    private volatile boolean objDetected; //Object detection flag
 
-@Override
-public void run() {
+    public void run() {
+        while (running) {
 
-    while (running) {
+            mode.fetchSample(sample, 0);
+            float value = sample[0];
 
-        ultrasonicSensor.fetchSample(sample, 0); // Read sensor value to the sample array
-        distance = sample[0];
-        objDetected = distance <= 0.15f;
-
-        try { //Teachers example of "smart" delay
-            if (objDetected) {
-                Thread.sleep(100);
-            } else {
-                Thread.sleep(200);
+            // ---------- VALIDATION ----------
+            // ignore unrealistic values
+            if (value < 0.02f || value > 2.5f) {
+                Delay.msDelay(30);
+                continue;
             }
-        } catch (InterruptedException e) {
-            break; // Exit loop if interrupted
+
+            // ---------- FILTERING (moving average) ----------
+            buffer[index] = value;
+            index = (index + 1) % buffer.length;
+
+            if (count < buffer.length) count++;
+
+            float sum = 0;
+            for (int i = 0; i < count; i++) {
+                sum += buffer[i];
+            }
+
+            distance = sum / count;
+
+            Delay.msDelay(30);
         }
     }
-}
+
     public float getDistance() {
         return distance;
     }
+
     public void stop() {
         running = false;
     }
-   
+
 }
+

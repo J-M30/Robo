@@ -1,5 +1,8 @@
 package src;
 
+import data.LightData;
+import threads.*;
+
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -10,92 +13,117 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-import threads.LightData;
-import threads.LightSensorThread;
-import threads.UltrasonicThread;
+
 
 public class ThreadedRobot {
 
     public static void main(String[] args) {
 
-        // ---------- LIGHT SENSOR ----------
-        EV3ColorSensor lightSensor =
-                new EV3ColorSensor(SensorPort.S2);
-
-        // use RedMode (not ColorID)
+        EV3ColorSensor lightSensor = new EV3ColorSensor(SensorPort.S2);
         SampleProvider lightMode = lightSensor.getRedMode();
         float[] lightSample = new float[lightMode.sampleSize()];
 
         LightData lightData = new LightData();
-
-        LightSensorThread lightThread =
-                new LightSensorThread(lightMode, lightSample, lightData);
-
+        LightSensorThread lightThread = new LightSensorThread(lightMode, lightSample, lightData);
         lightThread.start();
 
-
-        // ---------- ULTRASONIC SENSOR ----------
-        EV3UltrasonicSensor usSensor =
-                new EV3UltrasonicSensor(SensorPort.S1);
-
+        EV3UltrasonicSensor usSensor = new EV3UltrasonicSensor(SensorPort.S1);
         SampleProvider distMode = usSensor.getDistanceMode();
         float[] distSample = new float[distMode.sampleSize()];
 
-        UltrasonicThread ultraRunnable =
-                new UltrasonicThread(distMode, distSample);
-
+        UltrasonicThread ultraRunnable = new UltrasonicThread(distMode, distSample);
         Thread ultraThread = new Thread(ultraRunnable);
         ultraThread.start();
 
+        EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(MotorPort.B);
+        EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(MotorPort.A);
 
-        // ---------- MOTORS ----------
-        EV3LargeRegulatedMotor leftMotor =
-                new EV3LargeRegulatedMotor(MotorPort.B);
+        // ---------- CALIBRATION ----------
+        LCD.drawString("WHITE", 0, 0);
+        Button.waitForAnyPress();
+        Delay.msDelay(500);
+        float white = lightData.filtered;
 
-        EV3LargeRegulatedMotor rightMotor =
-                new EV3LargeRegulatedMotor(MotorPort.A);
+        LCD.clear();
+        LCD.drawString("BLACK", 0, 0);
+        Button.waitForAnyPress();
+        Delay.msDelay(500);
+        float black = lightData.filtered;
 
-        leftMotor.setSpeed(150);
-        rightMotor.setSpeed(150);
+        float target = (white + black) / 2;
 
+        int baseSpeed = 120;
+        float Kp = 400;
 
-        // ---------- MAIN LOOP ----------
+        // recovery variables
+        boolean lost = false;
+        int lastTurn = 1; // 1 = right, -1 = left
+
         while (!Button.ESCAPE.isDown()) {
 
             float light = lightData.filtered;
-            boolean isBlack = lightData.isBlack;
-
             float distance = ultraRunnable.getDistance();
 
-            // --- Display ---
-            LCD.drawString("Dist: " + distance + "   ", 0, 0);
-            LCD.drawString("Light: " + light + "   ", 0, 1);
+            LCD.drawString("L:" + light + "   ", 0, 1);
+            LCD.drawString("D:" + distance + "   ", 0, 2);
 
-            // ---------- BEHAVIOR ----------
             if (distance < 0.15f) {
                 avoidObstacle(leftMotor, rightMotor);
+                continue;
             }
-            else {
-                if (isBlack) {
-                    // on line → go straight
-                    leftMotor.setSpeed(150);
-                    rightMotor.setSpeed(150);
+
+            float error = light - target;
+
+            // ---------- LOST LINE DETECTION ----------
+            if (Math.abs(error) > 0.2f) {
+                lost = true;
+            }
+
+            if (lost) {
+                // spin in last known direction
+                if (lastTurn > 0) {
+                    leftMotor.setSpeed(120);
+                    rightMotor.setSpeed(120);
+                    leftMotor.forward();
+                    rightMotor.backward();
                 } else {
-                    // off line → turn LEFT to find it
-                    leftMotor.setSpeed(200);
-                    rightMotor.setSpeed(80);
+                    leftMotor.setSpeed(120);
+                    rightMotor.setSpeed(120);
+                    leftMotor.backward();
+                    rightMotor.forward();
                 }
 
-                leftMotor.forward();
-                rightMotor.forward();
+                // check if line found again
+                if (Math.abs(error) < 0.05f) {
+                    lost = false;
+                }
+
+                Delay.msDelay(50);
+                continue;
             }
+
+            int correction = (int)(error * Kp);
+
+            int leftSpeed = baseSpeed - correction;
+            int rightSpeed = baseSpeed + correction;
+
+            // remember last turn direction
+            if (correction > 0) lastTurn = 1;
+            if (correction < 0) lastTurn = -1;
+
+            leftSpeed = Math.max(50, Math.min(300, leftSpeed));
+            rightSpeed = Math.max(50, Math.min(300, rightSpeed));
+
+            leftMotor.setSpeed(leftSpeed);
+            rightMotor.setSpeed(rightSpeed);
+
+            leftMotor.forward();
+            rightMotor.forward();
 
             Delay.msDelay(50);
         }
 
-        // ---------- CLEANUP ----------
         lightThread.stopThread();
-
         ultraRunnable.stop();
         ultraThread.interrupt();
 
@@ -108,23 +136,17 @@ public class ThreadedRobot {
         rightMotor.close();
     }
 
-    // ---------- METHODS ----------
-
-    static void avoidObstacle(EV3LargeRegulatedMotor left,
-                              EV3LargeRegulatedMotor right) {
-
+    static void avoidObstacle(EV3LargeRegulatedMotor left, EV3LargeRegulatedMotor right) {
         left.stop(true);
         right.stop();
 
         left.setSpeed(150);
         right.setSpeed(150);
 
-        // reverse
         left.backward();
         right.backward();
         Delay.msDelay(400);
 
-        // turn
         left.forward();
         right.backward();
         Delay.msDelay(450);
