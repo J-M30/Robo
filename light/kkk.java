@@ -7,6 +7,10 @@ import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.Button;
 import lejos.robotics.SampleProvider;
+<<<<<<< Updated upstream
+=======
+import lejos.utility.Delay;
+>>>>>>> Stashed changes
 
 public class kkk
 {
@@ -14,8 +18,11 @@ public class kkk
     {
         EV3ColorSensor colorSensor  = new EV3ColorSensor(SensorPort.S2);
         SampleProvider light        = colorSensor.getAmbientMode();
+<<<<<<< Updated upstream
         
 
+=======
+>>>>>>> Stashed changes
         EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(MotorPort.B);
         EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(MotorPort.A);
 
@@ -23,6 +30,7 @@ public class kkk
         // Create an array to hold the sensor data
         float[] sample = new float[light.sampleSize()];
 
+<<<<<<< Updated upstream
         float lower = 0.04f;
         float upper = 0.07f;
 
@@ -30,10 +38,13 @@ public class kkk
         leftMotor.setSpeed(200);
         rightMotor.forward();
         leftMotor.forward();
+=======
+>>>>>>> Stashed changes
         
         // Continuously display the light intensity until a button is pressed
         while (!Button.ESCAPE.isDown())                 // Exit if the ESCAPE button is pressed
         {
+<<<<<<< Updated upstream
             
             light.fetchSample(sample, 0);              
             
@@ -50,6 +61,14 @@ public class kkk
             }
             
             
+=======
+            // Get the current light intensity reading from the sensor
+            light.fetchSample(sample, 0);               // 0 is the index where data will be stored
+            
+            // Display the light intensity value on the LCD screen
+            LCD.clear();
+            LCD.drawString( (int)(sample[0] * 100) + "%", 0, 0);            
+>>>>>>> Stashed changes
             try 
             {
                 Thread.sleep(100);
@@ -57,7 +76,25 @@ public class kkk
                 e.printStackTrace();
             }
 
+<<<<<<< Updated upstream
             
+=======
+            if (0 < (sample[0]*100) && (sample[0]*100) <2 ){
+                leftMotor.setSpeed(100);
+                rightMotor.setSpeed(100);
+                leftMotor.forward();
+                rightMotor.forward();
+            } else {
+                while (0 > (sample[0]*100) || (sample[0]*100) >2 ){
+                leftMotor.setSpeed(100);
+                rightMotor.setSpeed(100);
+                leftMotor.backward();
+                rightMotor.forward();
+                Delay.msDelay(100);
+                }
+                
+            }
+>>>>>>> Stashed changes
               
         }
         colorSensor.close();
