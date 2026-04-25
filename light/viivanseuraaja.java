@@ -9,7 +9,7 @@ import lejos.hardware.Button;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-public class ppp
+public class viivanseuraaja
 {
     public static void main(String[] args)
     {
@@ -46,16 +46,11 @@ public class ppp
                 leftMotor.forward();
                 rightMotor.forward();
             } else if (0 > (sample[0]*100)) {
-                while (0 > (sample[0]*100)){
                 leftMotor.backward();
                 rightMotor.stop();
-                }
-                
             } else{
-                while((sample[0]*100)>2) {
                 leftMotor.forward();
                 rightMotor.stop();
-                }
             }
 
               

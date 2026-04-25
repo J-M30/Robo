@@ -1,1 +1,1 @@
-"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe valonlukija.jar light.valonlukija -C . light
+"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe viivanseuraaja.jar light.viivanseuraaja -C . light
