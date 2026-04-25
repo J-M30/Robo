@@ -113,8 +113,8 @@ public class Common {
         Delay.msDelay(450);
     }
 
-    static void setSpeed(EV3LargeRegulatedMotor left,EV3LargeRegulatedMotor right, int speed) {
-        left.setSpeed(speed);
-        right.setSpeed(speed);
-    }
+    // static void setSpeed(EV3LargeRegulatedMotor left,EV3LargeRegulatedMotor right, int speed) {
+    //     left.setSpeed(speed);
+    //     right.setSpeed(speed);
+    // }
 }

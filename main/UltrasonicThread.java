@@ -1,4 +1,4 @@
-package roboworking;
+package main;
 
 import lejos.robotics.SampleProvider;
 
@@ -19,7 +19,7 @@ public UltrasonicThread(SampleProvider sensor, float[] sample) {//Constructor
 @Override
 public void run() {
 
-    while (running) {   
+    while (running) {
 
         ultrasonicSensor.fetchSample(sample, 0); // Read sensor value to the sample array
         distance = sample[0];
