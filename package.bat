@@ -1,1 +1,1 @@
-"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe yritys25.jar roboWorking.common -C . roboWorking
+"C:\Program Files\Java\jdk1.7.0_80\bin\jar" -cfe yritys26.jar roboworking.Common -C . roboworking

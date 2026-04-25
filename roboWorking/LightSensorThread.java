@@ -4,7 +4,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-public class LightSensorThread implements Runnable{
+public class LightSensorThread extends Thread{
     private SampleProvider light;
     private float[] lightSample;
 
@@ -24,8 +24,8 @@ public LightSensorThread(SampleProvider light, float[] lightSample){
  public void run(){
         while (running){
 
-            light.fetchSample(sample, 0);
-            color= (lightsample[0]*100); 
+            light.fetchSample(lightSample, 0);
+            float color= (lightSample[0]*100); 
             rightLight = color > 0 && color < 2;
             wrongLight1 = color <0;
             wrongLight2 = color >2;
@@ -34,25 +34,21 @@ public LightSensorThread(SampleProvider light, float[] lightSample){
             try{
                 if(rightLight){
                     Thread.sleep(100);
-                } else if(wrongLight1){
-                    Thread.sleep(100);
-                }else{
+                } else{
                     Thread.sleep(100);
                 }  
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-
-              
+            } 
         } 
     }
 
-public float getColor(){
-    return color;
-}
-public void stopThis(){
-    running=false;
-}   
+    public float getColor(){
+        return color;
+    }
+    public void stopThis(){
+        running=false;
+    }   
        
 }
         

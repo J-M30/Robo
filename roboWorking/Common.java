@@ -38,6 +38,8 @@ public class Common {
 
         float distanceInMeters = usThread.getDistance(); //Get distrance from thread
 
+        float color = ls.getColor();
+
         // ---------- MOTORS ----------
         EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(MotorPort.B);
         EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(MotorPort.A);
@@ -53,23 +55,20 @@ public class Common {
             float distance = distSample[0];
 
 
-            light.fetchSample(LightSample, 0);
-            color= (lightSample[0]*100); 
-
             // --- Display ---
             LCD.drawString("Dist: " + distance + "   ", 0, 0);
-            LCD.drawString(color, 0, 0);
+            LCD.drawString("Light:" + (int)(lightSample[0] * 100) + "%", 0, 0);  
 
             // ---------- BEHAVIOR ----------
             if (distanceInMeters < 0.15f) {
                 avoidObstacle(leftMotor, rightMotor);
             }
             else{
-                if(rightLight){
+                if(color > 0 && color < 2){
                     leftMotor.forward();
                     rightMotor.forward();
                 }
-                else if(wrongLight1){
+                else if(color <0){
                     leftMotor.backward();
                     rightMotor.stop();
                 }
@@ -101,7 +100,7 @@ public class Common {
         left.stop(true);
         right.stop();
 
-        setSpeed(left, right, 150);
+        setSpeed(left, right, 50);
 
         // reverse
         left.backward();
