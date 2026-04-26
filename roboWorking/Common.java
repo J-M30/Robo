@@ -62,17 +62,14 @@ public class Common {
             // ---------- BEHAVIOR ----------
             if (distanceInMeters < 0.15f) {
                 avoidObstacle(leftMotor, rightMotor);
-            }
-            else{
-                if(color > 0 && color < 2){
+            }else{
+                if(color > 1 && color < 3){
                     leftMotor.forward();
                     rightMotor.forward();
-                }
-                else if(color <0){
-                    leftMotor.backward();
+                }else if(color <1){
+                    leftMotor.forward();
                     rightMotor.stop();
-                }
-                else{
+                }else{
                 leftMotor.forward();
                 rightMotor.stop();
                 }
@@ -100,7 +97,8 @@ public class Common {
         left.stop(true);
         right.stop();
 
-        setSpeed(left, right, 50);
+        left.setSpeed(50);
+        right.setSpeed(50);
 
         // reverse
         left.backward();
@@ -113,8 +111,4 @@ public class Common {
         Delay.msDelay(450);
     }
 
-    // static void setSpeed(EV3LargeRegulatedMotor left,EV3LargeRegulatedMotor right, int speed) {
-    //     left.setSpeed(speed);
-    //     right.setSpeed(speed);
-    // }
 }

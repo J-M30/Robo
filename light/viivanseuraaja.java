@@ -42,10 +42,10 @@ public class viivanseuraaja
                 e.printStackTrace();
             }
 
-            if (0 < (sample[0]*100) && (sample[0]*100) <2 ){
+            if (1 < (sample[0]*100) && (sample[0]*100) <3 ){
                 leftMotor.forward();
                 rightMotor.forward();
-            } else if (0 > (sample[0]*100)) {
+            } else if (1 > (sample[0]*100)) {
                 leftMotor.backward();
                 rightMotor.stop();
             } else{
