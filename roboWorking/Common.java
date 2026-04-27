@@ -60,15 +60,18 @@ public class Common {
             LCD.drawString("Light:" + (int)(lightSample[0] * 100) + "%", 0, 0);  
 
             // ---------- BEHAVIOR ----------
-            if (distanceInMeters < 0.15f) {
+            if (distance < 0.15f) {
+                LCD.drawString("Vaistetaan: " + distance + "   ", 0, 0);
                 avoidObstacle(leftMotor, rightMotor);
             }else{
-                if(color > 1 && color < 3){
+                if(1 <= color && color <= 3){
                     leftMotor.forward();
                     rightMotor.forward();
-                }else if(color <1){
+                }else if(1 > color){
+                    LCD.drawString("Kaannytaan: " + (int)(lightSample[0] * 100) + "%", 0, 0);
                     leftMotor.forward();
                     rightMotor.stop();
+
                 }else{
                 leftMotor.forward();
                 rightMotor.stop();

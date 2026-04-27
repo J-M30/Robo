@@ -26,7 +26,7 @@ public LightSensorThread(SampleProvider light, float[] lightSample){
 
             light.fetchSample(lightSample, 0);
             float color= (lightSample[0]*100); 
-            rightLight = color > 1 && color < 3;
+            rightLight = 1 <= color && color <= 3;
             wrongLight1 = color <1;
             wrongLight2 = color >3;
             

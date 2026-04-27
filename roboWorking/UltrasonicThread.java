@@ -23,7 +23,7 @@ public void run() {
 
         ultrasonicSensor.fetchSample(sample, 0); // Read sensor value to the sample array
         distance = sample[0];
-        objDetected = distance <= 0.15f;
+        objDetected = distance < 0.15f;
 
         try { //Teachers example of "smart" delay
             if (objDetected) {
