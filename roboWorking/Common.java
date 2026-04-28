@@ -20,11 +20,9 @@ public class Common {
         SampleProvider light = lightSensor.getAmbientMode();
         float[] lightSample = new float[light.sampleSize()];
 
-        LightSensorThread ls = new LightSensorThread(light, lightSample);
+        LightSensorThread ls = new LightSensorThread(light, lightSample); // ls thread starts
         Thread l = new Thread(ls);
         l.start();
-
-
 
         // ---------- ULTRASONIC SENSOR ----------
         EV3UltrasonicSensor usSensor = new EV3UltrasonicSensor(SensorPort.S1);
@@ -32,7 +30,7 @@ public class Common {
         float[] distSample = new float[distMode.sampleSize()];
 
 
-        UltrasonicThread usThread = new UltrasonicThread(distMode, distSample); // Us trhead start
+        UltrasonicThread usThread = new UltrasonicThread(distMode, distSample); // Us thread start
         Thread t = new Thread(usThread);
         t.start();
 
@@ -44,7 +42,7 @@ public class Common {
         EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(MotorPort.B);
         EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(MotorPort.A);
 
-        leftMotor.setSpeed(50);
+        leftMotor.setSpeed(50); 
         rightMotor.setSpeed(50);
 
         // ---------- MAIN LOOP ----------
@@ -54,27 +52,25 @@ public class Common {
             distMode.fetchSample(distSample, 0);
             float distance = distSample[0];
 
+            light.fetchSample(lightSample, 0);
+            float color1= (lightSample[0]*100); 
 
             // --- Display ---
-            LCD.drawString("Dist: " + distance + "   ", 0, 0);
-            LCD.drawString("Light:" + (int)(lightSample[0] * 100) + "%", 0, 0);  
+            LCD.drawString("Dist: " + distance, 0, 0);
+            LCD.drawString("Light:" + (int)(lightSample[0] * 100) + "%", 0, 0);    
 
             // ---------- BEHAVIOR ----------
             if (distance < 0.15f) {
                 LCD.drawString("Vaistetaan: " + distance + "   ", 0, 0);
                 avoidObstacle(leftMotor, rightMotor);
             }else{
-                if(1 <= color && color <= 3){
+                if(color1 <= 3){ 
                     leftMotor.forward();
                     rightMotor.forward();
-                }else if(1 > color){
-                    LCD.drawString("Kaannytaan: " + (int)(lightSample[0] * 100) + "%", 0, 0);
+                }else{ 
+                    LCD.drawString("Kaannytaan: " + (int)(lightSample[0] * 100) + "%", 0, 0); 
                     leftMotor.forward();
                     rightMotor.stop();
-
-                }else{
-                leftMotor.forward();
-                rightMotor.stop();
                 }
             } 
 
@@ -94,14 +90,13 @@ public class Common {
 
     // ---------- METHODS ----------
 
-    static void avoidObstacle(EV3LargeRegulatedMotor left,
-                              EV3LargeRegulatedMotor right) {
+    static void avoidObstacle(EV3LargeRegulatedMotor left,EV3LargeRegulatedMotor right) {
 
         left.stop(true);
         right.stop();
 
-        left.setSpeed(50);
-        right.setSpeed(50);
+        left.setSpeed(100);
+        right.setSpeed(100);
 
         // reverse
         left.backward();
@@ -110,8 +105,11 @@ public class Common {
 
         // turn
         left.forward();
-        right.backward();
-        Delay.msDelay(450);
+        right.stop();
+        Delay.msDelay(600);
+
+        
+
     }
 
 }

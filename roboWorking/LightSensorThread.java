@@ -17,8 +17,7 @@ public LightSensorThread(SampleProvider light, float[] lightSample){
 
         private volatile float color;
         private volatile boolean rightLight;
-        private volatile boolean wrongLight1;
-        private volatile boolean wrongLight2;
+        private volatile boolean wrongLight;
 
 @Override
  public void run(){
@@ -26,13 +25,13 @@ public LightSensorThread(SampleProvider light, float[] lightSample){
 
             light.fetchSample(lightSample, 0);
             float color= (lightSample[0]*100); 
-            rightLight = 1 <= color && color <= 3;
-            wrongLight1 = color <1;
-            wrongLight2 = color >3;
+            rightLight = color <=3; 
+            wrongLight = 3 < color;
+           
             
             
             try{
-                if(wrongLight1 || wrongLight2){
+                if(wrongLight){
                     Thread.sleep(100);
                 } else{
                     Thread.sleep(100);
