@@ -1,4 +1,4 @@
-package light;
+package lightTesting;
 
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.port.MotorPort;
@@ -9,7 +9,7 @@ import lejos.hardware.Button;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
-public class viivanseuraaja
+public class valonlukija
 {
     public static void main(String[] args)
     {
@@ -22,19 +22,20 @@ public class viivanseuraaja
         
         // Create an array to hold the sensor data
         float[] sample = new float[light.sampleSize()];
-        
-        leftMotor.setSpeed(50);
-        rightMotor.setSpeed(50);
-        
-        
-        while (!Button.ESCAPE.isDown())                 
-        {
 
-            light.fetchSample(sample, 0);               
-            
+        
+        // Continuously display the light intensity until a button is pressed
+        while (!Button.ESCAPE.isDown())                 // Exit if the ESCAPE button is pressed
+        {
+            // Get the current light intensity reading from the sensor
+            light.fetchSample(sample, 0);   // 0 is the index where data will be stored
+
+
             // Display the light intensity value on the LCD screen
             LCD.clear();
-            LCD.drawString( (int)(sample[0] * 100) + "%", 0, 0);            
+            LCD.drawString((int)(sample[0] * 100) + "%", 0, 0);  // Display as percentage
+
+            
             try 
             {
                 Thread.sleep(100);
@@ -42,17 +43,7 @@ public class viivanseuraaja
                 e.printStackTrace();
             }
 
-            if (1 < (sample[0]*100) && (sample[0]*100) <3 ){
-                leftMotor.forward();
-                rightMotor.forward();
-            } else if (1 > (sample[0]*100)) {
-                leftMotor.backward();
-                rightMotor.stop();
-            } else{
-                leftMotor.forward();
-                rightMotor.stop();
-            }
-
+            
               
         }
         colorSensor.close();

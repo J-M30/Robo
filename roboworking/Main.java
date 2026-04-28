@@ -11,9 +11,9 @@ import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
 
-public class Common {
+public class Main {
 
-    public static void main(String[] args) {
+    public static void Main(String[] args) {
 
         // ---------- LIGHT SENSOR ----------
         EV3ColorSensor lightSensor = new EV3ColorSensor(SensorPort.S2);
